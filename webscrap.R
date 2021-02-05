@@ -1,3 +1,6 @@
+# webscrap test
+#by jyce3d 2020
+
 library(rvest)
 
 process_surface <- function( icons) {
@@ -17,7 +20,10 @@ process_surface <- function( icons) {
   return(sqm2)
 }
 
-  html_data <- read_html('https://www.immocube.be/fr/component/properties/?view=list&page=8&view=list&goal=0')
+process_page <-function(page) {
+  url =sprintf('https://www.immocube.be/fr/component/properties/?view=list&page=%d&view=list&goal=0', page)
+  print(url)
+  html_data <- read_html(url)
 
   type <- html_data %>% html_nodes("div.prop-type") %>% html_text() 
   city <-html_data %>% html_nodes("div.prop-city") %>% html_text()
@@ -38,13 +44,18 @@ process_surface <- function( icons) {
   citydf <- citydf[citydf$city !="", ]
   citydf <-gsub("\t|\n", "", citydf)
   cityl <- as.vector(citydf)
-#i <- html_data %>% html_nodes("i.property-icon-surface"
 
 
                                 
-  tab8 <- data.frame(type, cityl, pricel, sqm2)
+  return (data.frame(type, cityl, pricel, sqm2))
+}
+  for( i in 1:8) {
+    if (i==1) {
+        tab[[1]] <- process_page(1)
+    }
+    else {
+      tab[[i]] <- rbind(tab[[i-1]], process_page(i))
+    }
+  }
 
-
-tab = rbind(tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8)
-
-write.csv(tab, "c:\\temp\\immocub.csv")
+write.csv(tab[8], "c:\\temp\\immocub.csv")
